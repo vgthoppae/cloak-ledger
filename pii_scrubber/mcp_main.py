@@ -8,7 +8,8 @@ mcp = FastMCP(
     "File Upload MCP Server",
     json_response=True,
     stateless_http=True,
-    port=8000
+    port=8000,
+    host="0.0.0.0",
 )
 
 # A simple tool
