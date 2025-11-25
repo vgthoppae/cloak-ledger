@@ -18,7 +18,7 @@ class CloakLogger:
     logger.setLevel(logging.DEBUG)
 
     # --- File Handler ---
-    file_handler = logging.FileHandler("logger.log")
+    file_handler = logging.FileHandler("../logger.log")
     file_handler.setLevel(logging.DEBUG)
 
     # --- Formatter (shared) ---

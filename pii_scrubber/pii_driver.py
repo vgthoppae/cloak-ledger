@@ -5,12 +5,14 @@ from pii_scrubber.ocr import ocr_main
 from pii_scrubber.redact import planner, painter
 
 
-class RootAgent:
-  def __init__(self):
+class PiiDriver:
+  def __init__(self, src_content= None, img_bytes=None):
     self.desc = "Root Agent"
-    self.images_dir = "pii_scrubber/src_images"
+    self.images_dir = "src_images"
     self.src_path = ""
-    self.ocr_map_path = "./ocr_map.json"
+    self.src_content = src_content
+    self.ocr_map_path = "ocr_map.json"
+    self.img_bytes = img_bytes
 
   def prompt_input(self):
     self.src_path = input("Enter the full file path to the billing statement: ").strip()
@@ -18,7 +20,7 @@ class RootAgent:
       self.src_path = "/Users/vgthoppae/Downloads/realistic_medical_invoice.pdf"
 
   def validate(self):
-    if not os.path.isfile(self.src_path):
+    if not os.path.isfile(self.src_path) and not self.src_content:
       msg = "Source file is not valid or does not exist in the given location"
       logging.error(msg)
       raise Exception(msg)
@@ -28,32 +30,36 @@ class RootAgent:
     self.validate()
 
     return pdf_converter_main.convert_pdf_to_images(
-      pdf_path = self.src_path,
-      output_folder = self.images_dir)
+      pdf_path  = self.src_path,
+      pdf_bytes = self.src_content)
 
   def do_ocr(self):
-    self.validate()
+    # self.validate()
 
     images_dir = Path(self.images_dir)
-    result_list = []
-    for png_file in images_dir.glob("*.png"):
-      logging.info(f"Extracting {png_file.name}")
-      result = ocr_main.extract_text_coordinates(png_file)
-      result_list.extend(result)
+    # result_list = []
+    # for png_file in images_dir.glob("*.png"):
+    #   logging.info(f"Extracting {png_file.name}")
+    #   result = ocr_main.extract_text_coordinates(png_file)
+    #   result_list.extend(result)
 
-    ocr_main.save_coordinate_map(result_list, self.ocr_map_path)
+    with open("image.png", "wb") as f:
+      f.write(self.img_bytes)
+
+    result = ocr_main.extract_text_coordinates("image.png")
+    ocr_main.save_coordinate_map(result, self.ocr_map_path)
 
   def plan_redact(self):
-    self.validate()
+    # self.validate()
 
     redaction_boxes = planner.analyze_and_map(self.ocr_map_path)
     planner.save_redact_plan(redaction_boxes)
 
   def apply_redact(self):
-    self.validate()
+    # self.validate()
 
-    painter.apply_redaction(self.images_dir + "/realistic_medical_invoice.pdf_page_001.png",
-                            plan_path="./redaction_plan.json", output_path="pii_scrubber/vault/safe.png")
+    painter.apply_redaction("image.png",
+                            plan_path="redaction_plan.json", output_path="safe.png")
 
 
 

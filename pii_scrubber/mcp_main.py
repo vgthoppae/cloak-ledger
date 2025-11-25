@@ -3,6 +3,9 @@ import os
 # server.py
 from mcp.server.fastmcp import FastMCP
 
+from pii_scrubber import cloak_logger, pii_driver
+import logging
+
 # Create an MCP server
 mcp = FastMCP(
     "File Upload MCP Server",
@@ -12,49 +15,35 @@ mcp = FastMCP(
     host="0.0.0.0",
 )
 
+clog = cloak_logger.CloakLogger()
+clog.configure()
+
 # A simple tool
 @mcp.tool()
 def add(a: int, b: int) -> int:
     """Add two numbers"""
     return a + b
 
-# A simple resource
-@mcp.resource("greeting://{name}")
-def get_greeting(name: str) -> str:
-    """Get a personalized greeting"""
-    return f"Hello, {name}!"
-
-# A simple prompt
-@mcp.prompt()
-def greet_user(name: str, style: str = "friendly") -> str:
-    """Generate a greeting prompt"""
-    return f"Write a {style} greeting for someone named {name}."
-
 # -------------------------------------------------------
 # TOOL: Accepts a file upload (binary) + optional metadata
 # -------------------------------------------------------
 @mcp.tool()
-def process_file(file: bytes, filename: str = "uploaded_file") -> dict:
+def process_file(file_bytes: bytes, filename: str = "uploaded_file") -> dict:
     """
     Process an uploaded file.
-    - `file`: raw bytes of uploaded file (PDF, PNG, TXT, CSV, etc.)
+    - `file_bytes`: raw bytes of uploaded file (PDF, PNG, TXT, CSV, etc.)
     - `filename`: optional client-supplied filename
 
     This is where your business logic goes.
     """
 
-    # Example business logic: inspect file size & first bytes
-    file_size = len(file)
+    pd = pii_driver.PiiDriver(img_bytes= file_bytes)
+    pd.do_ocr()
+    pd.plan_redact()
+    pd.apply_redact()
 
-    # Preview first 100 bytes (safe for binary)
-    preview = file[:100].hex()  # hex preview for safety
-
-    return {
-        "filename": filename,
-        "size_bytes": file_size,
-        "hex_preview_first_100_bytes": preview,
-        "message": "File processed successfully",
-    }
+    with open("safe.png", "rb") as f:
+        return f.read()
 
 if __name__ == "__main__":
     # Cloud Run sets PORT in the environment

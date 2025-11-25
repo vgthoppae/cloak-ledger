@@ -1,14 +1,14 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, Response
 import os
-from mcp.server.fastmcp import FastMCP
+from pii_scrubber import cloak_logger, pii_driver
 
 app = Flask(__name__)
 
 app.config['UPLOAD_FOLDER'] = './uploads'
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
 
-# Initialize MCP server
-mcp = FastMCP("PII Scrubber MCP Server")
+clog = cloak_logger.CloakLogger()
+clog.configure()
 
 @app.route('/')
 def hello_world():
@@ -25,28 +25,26 @@ def do_pii_scrub():
         return jsonify({"error": "No file part in request"}), 400
 
     file = request.files['file']
+    file_bytes = file.read()
 
-    # Check if file is selected
-    if file.filename == '':
-        return jsonify({"error": "No file selected"}), 400
+    pd = pii_driver.PiiDriver(img_bytes= file_bytes)
+    pd.do_ocr()
+    pd.plan_redact()
+    pd.apply_redact()
 
-    if file:
-        # Save the file
-        filename = file.filename
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
+    with open("safe.png", "rb") as f:
+        safe_image_bytes = f.read()
 
-        return jsonify({
-            "message": "File uploaded successfully",
-            "filename": filename,
-            "size": os.path.getsize(filepath)
-        }), 200
+    # convert to png
+    # images_list = pd.convert_to_image()
+    print("after ocr")
 
-# MCP Tools (using same logic functions)
-@mcp.tool()
-def say_hello() -> dict:
-    """Returns a hello world greeting"""
-    return {"message": "Hello World"}
-
+    return Response(
+        safe_image_bytes,
+        mimetype="image/png",
+        headers={
+            "Content-Disposition": "inline; filename=redacted_image.png"
+        },
+    )
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

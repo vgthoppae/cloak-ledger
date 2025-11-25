@@ -5,3 +5,4 @@ opencv_python_headless==4.12.0.88
 pdf2image==1.17.0
 presidio_analyzer==2.2.360
 pytesseract==0.3.13
+poppler-utils

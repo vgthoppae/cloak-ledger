@@ -1,3 +1,8 @@
 .idea/**
 logger.log
 rev_linked_list.py
+ocr_map.json
+safe.png
+image.png
+invoice.png
+redaction_plan.json

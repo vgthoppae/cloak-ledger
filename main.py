@@ -1,11 +1,11 @@
-import root_agent
-import cloak_logger
+from pii_scrubber import cloak_logger, pii_driver
+
 
 def main():
   clog = cloak_logger.CloakLogger()
   clog.configure()
 
-  ra = root_agent.RootAgent()
+  ra = pii_driver.PiiDriver()
 
   try:
     # prompt input
