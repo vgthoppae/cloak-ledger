@@ -1,4 +1,4 @@
-import os
+import os, logging
 
 # server.py
 from mcp.server.fastmcp import FastMCP
@@ -35,14 +35,18 @@ def process_file(file_bytes: bytes, filename: str = "uploaded_file") -> dict:
 
     This is where your business logic goes.
     """
+    try:
+        pd = pii_driver.PiiDriver(img_bytes= file_bytes)
+        pd.do_ocr()
+        pd.plan_redact()
+        pd.apply_redact()
 
-    pd = pii_driver.PiiDriver(img_bytes= file_bytes)
-    pd.do_ocr()
-    pd.plan_redact()
-    pd.apply_redact()
-
-    with open("safe.png", "rb") as f:
-        return f.read()
+        logging.info("redact completed successfully")
+        with open("safe.png", "rb") as f:
+            return f.read()
+    except Exception as e:
+        logging.error(e)
+        return None
 
 if __name__ == "__main__":
     # Streamable HTTP transport on /mcp
