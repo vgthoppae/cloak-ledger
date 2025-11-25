@@ -36,10 +36,15 @@ def process_file(file_bytes: bytes, filename: str = "uploaded_file") -> dict:
     This is where your business logic goes.
     """
     try:
+        print("received file")
         pd = pii_driver.PiiDriver(img_bytes= file_bytes)
+        print("after constructor")
         pd.do_ocr()
+        print("after ocr")
         pd.plan_redact()
+        print("after plan redact")
         pd.apply_redact()
+        print("after apply redact")
 
         logging.info("redact completed successfully")
         with open("safe.png", "rb") as f:
