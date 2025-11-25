@@ -9,7 +9,6 @@ import logging
 # Create an MCP server
 mcp = FastMCP(
     "File Upload MCP Server",
-    json_response=True,
     stateless_http=True,
     port=8000,
     host="0.0.0.0",
@@ -46,13 +45,5 @@ def process_file(file_bytes: bytes, filename: str = "uploaded_file") -> dict:
         return f.read()
 
 if __name__ == "__main__":
-    # Cloud Run sets PORT in the environment
-    # port = int(os.environ.get("PORT", "8000"))
-
-    # os.environ["MCP_TRANSPORT"] = "streamable-http"
-    # os.environ["MCP_HOST"] = "0.0.0.0"
-    # os.environ["MCP_PORT"] = "8080"
-    # os.environ["MCP_HTTP_PATH"] = "/mcp"
-
     # Streamable HTTP transport on /mcp
     mcp.run(transport="streamable-http")
