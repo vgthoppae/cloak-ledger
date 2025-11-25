@@ -1,8 +1,8 @@
-from pii_scrubber.pdf_converter import pdf_converter_main
+from pdf_converter import pdf_converter_main
 from pathlib import Path
 import logging, os
-from pii_scrubber.ocr import ocr_main
-from pii_scrubber.redact import planner, painter
+from ocr import ocr_main
+from redact import planner, painter
 
 
 class PiiDriver:

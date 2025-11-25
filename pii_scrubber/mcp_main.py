@@ -3,7 +3,7 @@ import os
 # server.py
 from mcp.server.fastmcp import FastMCP
 
-from pii_scrubber import cloak_logger, pii_driver
+import cloak_logger, pii_driver
 import logging
 
 # Create an MCP server
