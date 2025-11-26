@@ -62,6 +62,7 @@ def process_file(file_name: str) -> dict:
             print(e)
 
         return {
+            "redacted_object_name": redacted_object_name,
             "message": "success"
         }
 
