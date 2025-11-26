@@ -41,7 +41,7 @@ RUN python -m spacy download ${SPACY_MODEL}
 
 # 2. (Optional, but good practice) Link the downloaded model
 # This makes sure spacy.load('en_core_web_lg') works correctly
-RUN python -m spacy link ${SPACY_MODEL} ${SPACY_MODEL} --force
+RUN python -m spacy link ${SPACY_MODEL} ${SPACY_MODEL}
 # ---------------------------------
 
 # Copy code
