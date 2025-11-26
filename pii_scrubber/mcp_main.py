@@ -1,4 +1,6 @@
 import os, logging
+import downloader
+import base64
 
 # server.py
 from mcp.server.fastmcp import FastMCP
@@ -16,6 +18,10 @@ mcp = FastMCP(
 
 clog = cloak_logger.CloakLogger()
 clog.configure()
+
+BUCKET_NAME = "cloak_ledger_kaggle"  # e.g., 'gcp-public-data-landsat'
+OBJECT_NAME = "invoice.png"  # e.g., 'index.html' or 'images/photo.jpg'
+LOCAL_FILE_PATH = "downloaded_invoice.png"
 
 # A simple tool
 @mcp.tool()
@@ -37,7 +43,13 @@ def process_file(file_bytes: bytes, filename: str = "uploaded_file") -> dict:
     """
     try:
         print("received file")
-        pd = pii_driver.PiiDriver(img_bytes= file_bytes)
+        downloader.download_public_gcs_object(bucket_name=BUCKET_NAME,
+                                              object_name=OBJECT_NAME,
+                                              destination_file_name=LOCAL_FILE_PATH)
+
+        with open(LOCAL_FILE_PATH, "rb") as f:
+            img_bytes = f.read()
+        pd = pii_driver.PiiDriver(img_bytes= img_bytes)
         print("after constructor")
         pd.do_ocr()
         print("after ocr")
@@ -48,7 +60,16 @@ def process_file(file_bytes: bytes, filename: str = "uploaded_file") -> dict:
 
         logging.info("redact completed successfully")
         with open("safe.png", "rb") as f:
-            return f.read()
+            redacted_bytes = f.read()
+
+        redacted_b64 = base64.b64encode(redacted_bytes).decode("ascii")
+
+        return {
+            "mime_type": "image/png",  # or pdf, etc.
+            "image_b64": redacted_b64,  # JSON-safe string instead of bytes
+            "message": "Redaction completed",
+        }
+
     except Exception as e:
         logging.error(e)
         return None
