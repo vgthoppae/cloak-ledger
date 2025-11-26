@@ -64,11 +64,12 @@ def process_file(file_bytes: bytes, filename: str = "uploaded_file") -> dict:
 
         redacted_b64 = base64.b64encode(redacted_bytes).decode("ascii")
 
-        return {
-            "mime_type": "image/png",  # or pdf, etc.
-            "image_b64": redacted_b64,  # JSON-safe string instead of bytes
-            "message": "Redaction completed",
-        }
+        # return {
+        #     "mime_type": "image/png",  # or pdf, etc.
+        #     "image_b64": redacted_b64,  # JSON-safe string instead of bytes
+        #     "message": "Redaction completed",
+        # }
+        return
 
     except Exception as e:
         logging.error(e)
