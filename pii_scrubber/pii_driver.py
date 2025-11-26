@@ -6,13 +6,14 @@ from redact import planner, painter
 
 
 class PiiDriver:
-  def __init__(self, src_content= None, img_bytes=None):
+  def __init__(self, filename, src_content= None, img_bytes=None):
     self.desc = "Root Agent"
     self.images_dir = "src_images"
     self.src_path = ""
     self.src_content = src_content
     self.ocr_map_path = "ocr_map.json"
     self.img_bytes = img_bytes
+    self.file_name = filename
 
   def prompt_input(self):
     self.src_path = input("Enter the full file path to the billing statement: ").strip()
@@ -43,10 +44,10 @@ class PiiDriver:
     #   result = ocr_main.extract_text_coordinates(png_file)
     #   result_list.extend(result)
 
-    with open("image.png", "wb") as f:
+    with open(self.file_name, "wb") as f:
       f.write(self.img_bytes)
 
-    result = ocr_main.extract_text_coordinates("image.png")
+    result = ocr_main.extract_text_coordinates(self.file_name)
     ocr_main.save_coordinate_map(result, self.ocr_map_path)
 
   def plan_redact(self):
@@ -58,7 +59,7 @@ class PiiDriver:
   def apply_redact(self):
     # self.validate()
 
-    painter.apply_redaction("image.png",
+    painter.apply_redaction(self.file_name,
                             plan_path="redaction_plan.json", output_path="safe.png")
 
 

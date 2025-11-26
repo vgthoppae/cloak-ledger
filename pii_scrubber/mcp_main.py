@@ -1,6 +1,6 @@
 import os, logging
 import gcloud_storage
-import base64
+import glob
 
 # server.py
 from mcp.server.fastmcp import FastMCP
@@ -20,46 +20,39 @@ clog = cloak_logger.CloakLogger()
 clog.configure()
 
 BUCKET_NAME = "cloak_ledger_kaggle"  # e.g., 'gcp-public-data-landsat'
-OBJECT_NAME = "invoice.png"  # e.g., 'index.html' or 'images/photo.jpg'
-LOCAL_FILE_PATH = "downloaded_invoice.png"
+# OBJECT_NAME = "invoice.png"  # e.g., 'index.html' or 'images/photo.jpg'
+# LOCAL_FILE_PATH = "downloaded_invoice.png"
 
-# A simple tool
+# A simple tool for test
 @mcp.tool()
 def add(a: int, b: int) -> int:
     """Add two numbers"""
     return a + b
 
-# -------------------------------------------------------
-# TOOL: Accepts a file upload (binary) + optional metadata
-# -------------------------------------------------------
+# -------------------------------------------------------------
+# TOOL: Accepts a file name to download from storage and redact
+# -------------------------------------------------------------
 @mcp.tool()
-def process_file(file_bytes: bytes, filename: str = "uploaded_file") -> dict:
+def process_file(file_name: str) -> dict:
     """
     Process an uploaded file.
-    - `file_bytes`: raw bytes of uploaded file (PDF, PNG, TXT, CSV, etc.)
-    - `filename`: optional client-supplied filename
-
-    This is where your business logic goes.
+    - `file_name`: client-supplied filename
     """
     try:
         try:
             print("received file")
             gcloud_storage.download_public_gcs_object(bucket_name=BUCKET_NAME,
-                                                  object_name=OBJECT_NAME,
-                                                  destination_file_name=LOCAL_FILE_PATH)
+                                                  object_name=file_name,
+                                                  destination_file_name=file_name)
 
-            with open(LOCAL_FILE_PATH, "rb") as f:
+            with open(file_name, "rb") as f:
                 img_bytes = f.read()
-            pd = pii_driver.PiiDriver(img_bytes= img_bytes)
-            print("after constructor")
+            pd = pii_driver.PiiDriver(file_name, img_bytes= img_bytes)
             pd.do_ocr()
-            print("after ocr")
             pd.plan_redact()
-            print("after plan redact")
             pd.apply_redact()
-            print("after apply redact")
 
-            redacted_object_name = "redacted_" + OBJECT_NAME
+            redacted_object_name = "redacted_" + file_name
             gcloud_storage.upload_to_gcs(bucket_name=BUCKET_NAME,
                                          source_file_name="safe.png",
                                          destination_blob_name=redacted_object_name)
@@ -67,16 +60,7 @@ def process_file(file_bytes: bytes, filename: str = "uploaded_file") -> dict:
             logging.info("redact completed successfully")
         except Exception as e:
             print(e)
-        # with open("safe.png", "rb") as f:
-        #     redacted_bytes = f.read()
-        #
-        # redacted_b64 = base64.b64encode(redacted_bytes).decode("ascii")
 
-        # return {
-        #     "mime_type": "image/png",  # or pdf, etc.
-        #     "image_b64": redacted_b64,  # JSON-safe string instead of bytes
-        #     "message": "Redaction completed",
-        # }
         return {
             "message": "success"
         }
@@ -84,7 +68,16 @@ def process_file(file_bytes: bytes, filename: str = "uploaded_file") -> dict:
     except Exception as e:
         logging.error(e)
         return None
+    finally:
+        cleanup()
+
+def cleanup():
+    extensions = ["*.png", "*.json"]
+    for ext in extensions:
+        for file_path in glob.glob(f"*{ext}"):
+            os.remove(file_path)
 
 if __name__ == "__main__":
     # Streamable HTTP transport on /mcp
     mcp.run(transport="streamable-http")
+    # process_file("invoice.png")
