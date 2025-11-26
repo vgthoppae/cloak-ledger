@@ -1,6 +1,9 @@
 # Dockerfile
 FROM python:3.12-slim
 
+ENV PYTHONUNBUFFERED 1
+ENV SPACY_MODEL en_core_web_lg
+
 # Install system deps (optional but usually handy)
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -31,6 +34,15 @@ WORKDIR /app
 # Install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+# --- SPACY MODEL INSTALLATION ---
+# 1. Download the specific model using spaCy's official command
+RUN python -m spacy download ${SPACY_MODEL}
+
+# 2. (Optional, but good practice) Link the downloaded model
+# This makes sure spacy.load('en_core_web_lg') works correctly
+RUN python -m spacy link ${SPACY_MODEL} ${SPACY_MODEL} --force
+# ---------------------------------
 
 # Copy code
 COPY . .

@@ -61,7 +61,7 @@ def process_file(file_bytes: bytes, filename: str = "uploaded_file") -> dict:
 
             redacted_object_name = "redacted_" + OBJECT_NAME
             gcloud_storage.upload_to_gcs(bucket_name=BUCKET_NAME,
-                                         source_file_name="pii_scrubber/image.png",
+                                         source_file_name="safe.png",
                                          destination_blob_name=redacted_object_name)
             logging.info("redacted file uploaded successfully")
             logging.info("redact completed successfully")

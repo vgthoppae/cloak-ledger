@@ -7,3 +7,4 @@ presidio_analyzer==2.2.360
 pytesseract==0.3.13
 poppler-utils
 google-cloud-storage
+spacy
