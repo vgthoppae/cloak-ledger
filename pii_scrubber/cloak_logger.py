@@ -15,15 +15,15 @@ class CloakLogger:
 
     # Create a logger
     logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
 
     # --- File Handler ---
-    file_handler = logging.FileHandler("../logger.log")
-    file_handler.setLevel(logging.DEBUG)
+    # file_handler = logging.FileHandler("../logger.log")
+    # file_handler.setLevel(logging.DEBUG)
 
     # --- Formatter (shared) ---
     formatter = logging.Formatter("%(filename)s:%(lineno)s %(levelname)s:%(message)s")
-    file_handler.setFormatter(formatter)
+    # file_handler.setFormatter(formatter)
 
     # --- Console Handler ---
     if self.console_log:
@@ -32,7 +32,7 @@ class CloakLogger:
       console_handler.setFormatter(formatter)
 
     # --- Add handlers to logger ---
-    logger.addHandler(file_handler)
+    # logger.addHandler(file_handler)
 
     # --- Console Handler ---
     if self.console_log:

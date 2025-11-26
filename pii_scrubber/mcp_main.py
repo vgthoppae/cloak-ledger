@@ -42,28 +42,31 @@ def process_file(file_bytes: bytes, filename: str = "uploaded_file") -> dict:
     This is where your business logic goes.
     """
     try:
-        print("received file")
-        gcloud_storage.download_public_gcs_object(bucket_name=BUCKET_NAME,
-                                              object_name=OBJECT_NAME,
-                                              destination_file_name=LOCAL_FILE_PATH)
+        try:
+            print("received file")
+            gcloud_storage.download_public_gcs_object(bucket_name=BUCKET_NAME,
+                                                  object_name=OBJECT_NAME,
+                                                  destination_file_name=LOCAL_FILE_PATH)
 
-        with open(LOCAL_FILE_PATH, "rb") as f:
-            img_bytes = f.read()
-        pd = pii_driver.PiiDriver(img_bytes= img_bytes)
-        print("after constructor")
-        pd.do_ocr()
-        print("after ocr")
-        pd.plan_redact()
-        print("after plan redact")
-        pd.apply_redact()
-        print("after apply redact")
+            with open(LOCAL_FILE_PATH, "rb") as f:
+                img_bytes = f.read()
+            pd = pii_driver.PiiDriver(img_bytes= img_bytes)
+            print("after constructor")
+            pd.do_ocr()
+            print("after ocr")
+            pd.plan_redact()
+            print("after plan redact")
+            pd.apply_redact()
+            print("after apply redact")
 
-        redacted_object_name = "redacted_" + OBJECT_NAME
-        gcloud_storage.upload_to_gcs(bucket_name=BUCKET_NAME,
-                                     source_file_name="pii_scrubber/image.png",
-                                     destination_blob_name=redacted_object_name)
-        logging.info("redacted file uploaded successfully")
-        logging.info("redact completed successfully")
+            redacted_object_name = "redacted_" + OBJECT_NAME
+            gcloud_storage.upload_to_gcs(bucket_name=BUCKET_NAME,
+                                         source_file_name="pii_scrubber/image.png",
+                                         destination_blob_name=redacted_object_name)
+            logging.info("redacted file uploaded successfully")
+            logging.info("redact completed successfully")
+        except Exception as e:
+            print(e)
         # with open("safe.png", "rb") as f:
         #     redacted_bytes = f.read()
         #
@@ -74,7 +77,9 @@ def process_file(file_bytes: bytes, filename: str = "uploaded_file") -> dict:
         #     "image_b64": redacted_b64,  # JSON-safe string instead of bytes
         #     "message": "Redaction completed",
         # }
-        return
+        return {
+            "message": "success"
+        }
 
     except Exception as e:
         logging.error(e)
