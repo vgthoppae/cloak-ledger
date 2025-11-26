@@ -1,5 +1,5 @@
 import os, logging
-import downloader
+import gcloud_storage
 import base64
 
 # server.py
@@ -43,7 +43,7 @@ def process_file(file_bytes: bytes, filename: str = "uploaded_file") -> dict:
     """
     try:
         print("received file")
-        downloader.download_public_gcs_object(bucket_name=BUCKET_NAME,
+        gcloud_storage.download_public_gcs_object(bucket_name=BUCKET_NAME,
                                               object_name=OBJECT_NAME,
                                               destination_file_name=LOCAL_FILE_PATH)
 
@@ -58,11 +58,16 @@ def process_file(file_bytes: bytes, filename: str = "uploaded_file") -> dict:
         pd.apply_redact()
         print("after apply redact")
 
+        redacted_object_name = "redacted_" + OBJECT_NAME
+        gcloud_storage.upload_to_gcs(bucket_name=BUCKET_NAME,
+                                     source_file_name="pii_scrubber/image.png",
+                                     destination_blob_name=redacted_object_name)
+        logging.info("redacted file uploaded successfully")
         logging.info("redact completed successfully")
-        with open("safe.png", "rb") as f:
-            redacted_bytes = f.read()
-
-        redacted_b64 = base64.b64encode(redacted_bytes).decode("ascii")
+        # with open("safe.png", "rb") as f:
+        #     redacted_bytes = f.read()
+        #
+        # redacted_b64 = base64.b64encode(redacted_bytes).decode("ascii")
 
         # return {
         #     "mime_type": "image/png",  # or pdf, etc.
