@@ -4,6 +4,7 @@ rev_linked_list.py
 ocr_map.json
 safe.png
 image.png
-invoice.png
+pii_scrubber/invoice.png
 redaction_plan.json
 downloaded_invoice.png
+**/__pycache__/**
