@@ -33,7 +33,7 @@ The system is built as a collection of specialized agents:
 
 This modular design ensures each agent has a narrow, well-defined responsibility, enhancing privacy, maintainability, and extensibility.
 
-![architecture](cloak-ledger.pdg "Architecture")
+![architecture](cloak-ledger.png "Architecture")
 ---
 
 ## 🚀 Quick Demo / User Flow
