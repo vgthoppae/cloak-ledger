@@ -1,7 +1,6 @@
 # cloak-ledger
 
-cloak-ledger is a privacy-first, AI-driven financial statement processing system.  
-It supports uploading credit-card or billing PDFs, redacting personally identifiable information (PII), extracting the statement contents via OCR, letting users analyze and inspect charges, and (optionally) connect with merchants by phone using integrated Twilio support — all while keeping original data secure.
+cloak-ledger is a privacy-first, AI-driven financial statement processing system. It supports uploading credit-card or billing PDFs, redacting personally identifiable information (PII), extracting the statement contents via OCR, letting users analyze and inspect charges, and (optionally) connect with merchants by phone using integrated Twilio support — all while keeping original data secure.
 
 ---
 
@@ -71,4 +70,27 @@ pip install -r requirements.txt
 # Start the MCP redaction & conversion server (if containerized)
 docker build -t cloak-ledger-mcp .
 docker run -p 8000:8000 cloak-ledger-mcp
+
+---
+
+## Redaction Process
+
+* Step 1: Full OCR Read
+The entire document content is read using opencv-python library into a list of dictionary objects in the below format.
+```
+      {
+          "text": "Invoice",
+          "left": 100, "top": 50, "width": 60, "height": 20,
+          "conf": 90 (confidence score)
+      }
+```
+* Step 2: Plan Redact
+** The textual content spread around dict objects is constructed into a contiguous text.
+** Pattern recognition is applied over the text content using Microsoft Presidio engine which supports standard out of the box patterns such as SSN, NAME etc.
+** Cloak-Ledger defines custom patterns to recognize tax ids, account numbers and bank routing numbers. This is a potential area for customization in a productio grade
+   implementation to enable users define patterns specific to their document.
+** Map the above recognized texts to their bounding boxes from the OCR result
+
+* Step 3: Apply Redaction
+** Draw rectangle around the identified areas above
 
