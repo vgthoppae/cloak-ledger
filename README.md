@@ -73,9 +73,9 @@ docker run -p 8000:8000 cloak-ledger-mcp
 
 ---
 
-##Redaction Process
+## Redaction Process
 
-*Step 1: Full OCR Read
+**Step 1: Full OCR Read**
 The entire document content is read using opencv-python library into a list of dictionary objects in the below format.
 ```
       {
@@ -84,13 +84,13 @@ The entire document content is read using opencv-python library into a list of d
           "conf": 90 (confidence score)
       }
 ```
-*Step 2: Plan Redact
-**The textual content spread around dict objects is constructed into a contiguous text.
-**Pattern recognition is applied over the text content using Microsoft Presidio engine which supports standard out of the box patterns such as SSN, NAME etc.
+*Step 2: Plan Redact*
+**The textual content spread around dict objects is constructed into a contiguous text.**
+**Pattern recognition is applied over the text content using Microsoft Presidio engine which supports standard out of the box patterns such as SSN, NAME etc.**
 **Cloak-Ledger defines custom patterns to recognize tax ids, account numbers and bank routing numbers. This is a potential area for customization in a productio grade
-   implementation to enable users define patterns specific to their document.
-**Map the above recognized texts to their bounding boxes from the OCR result
+   implementation to enable users define patterns specific to their document.**
+**Map the above recognized texts to their bounding boxes from the OCR result**
 
-*Step 3: Apply Redaction
-**Draw rectangle around the identified areas above
+*Step 3: Apply Redaction*
+**Draw rectangle around the identified areas above**
 
