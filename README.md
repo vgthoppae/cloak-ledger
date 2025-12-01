@@ -73,24 +73,41 @@ docker run -p 8000:8000 cloak-ledger-mcp
 
 ---
 
+Here is the cleaned-up, correctly formatted Markdown with consistent styling, fixed bolding/italics, and clearer structure:
+
+---
+
 ## Redaction Process
 
-**Step 1: Full OCR Read**
-The entire document content is read using opencv-python library into a list of dictionary objects in the below format.
-```
-      {
-          "text": "Invoice",
-          "left": 100, "top": 50, "width": 60, "height": 20,
-          "conf": 90 (confidence score)
-      }
-```
-*Step 2: Plan Redact*
-**The textual content spread around dict objects is constructed into a contiguous text.**
-**Pattern recognition is applied over the text content using Microsoft Presidio engine which supports standard out of the box patterns such as SSN, NAME etc.**
-**Cloak-Ledger defines custom patterns to recognize tax ids, account numbers and bank routing numbers. This is a potential area for customization in a productio grade
-   implementation to enable users define patterns specific to their document.**
-**Map the above recognized texts to their bounding boxes from the OCR result**
+### **Step 1: Full OCR Read**
 
-*Step 3: Apply Redaction*
-**Draw rectangle around the identified areas above**
+The entire document is read using the **opencv-python** library and converted into a list of dictionary objects in the format shown below:
+
+```json
+{
+  "text": "Invoice",
+  "left": 100, 
+  "top": 50, 
+  "width": 60, 
+  "height": 20,
+  "conf": 90
+}
+```
+
+### **Step 2: Plan Redaction**
+
+* The textual content extracted from the dictionary objects is assembled into a contiguous string.
+* Pattern recognition is applied using the **Microsoft Presidio** engine, which supports standard PII recognizers such as SSN, NAME, etc.
+* **Cloak-Ledger** adds custom recognizers for tax IDs, account numbers, and bank routing numbers.
+  This is an area for **production-grade customization**, allowing users to define their own document-specific patterns.
+* The recognized entities are then mapped back to their corresponding bounding boxes from the OCR output.
+
+### **Step 3: Apply Redaction**
+
+* Rectangles are drawn over the identified sensitive areas to redact them in the output image.
+
+---
+
+If you'd like, I can also add a visual diagram or flowchart directly in Markdown or Mermaid format.
+
 
