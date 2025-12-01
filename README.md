@@ -70,11 +70,7 @@ pip install -r requirements.txt
 # Start the MCP redaction & conversion server (if containerized)
 docker build -t cloak-ledger-mcp .
 docker run -p 8000:8000 cloak-ledger-mcp
-
----
-
-Here is the cleaned-up, correctly formatted Markdown with consistent styling, fixed bolding/italics, and clearer structure:
-
+```
 ---
 
 ## Redaction Process
